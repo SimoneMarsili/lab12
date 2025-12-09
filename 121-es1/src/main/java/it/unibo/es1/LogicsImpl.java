@@ -1,13 +1,16 @@
 package it.unibo.es1;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Implementation of the Logics interface.
  */
 public class LogicsImpl implements Logics {
 
-    private static final String ERROR_MESSAGE = "Unimplemented method";
+    private final List<Integer> values;
 
     /**
      * Constructor.
@@ -15,7 +18,9 @@ public class LogicsImpl implements Logics {
      * @param size the size of the logics
      */
     public LogicsImpl(final int size) {
-        throw new UnsupportedOperationException(ERROR_MESSAGE);
+        this.values = IntStream.range(0, size)
+            .mapToObj(i -> 0)
+            .collect(Collectors.toList());
     }
 
     /**
@@ -23,7 +28,7 @@ public class LogicsImpl implements Logics {
      */
     @Override
     public int size() {
-        throw new UnsupportedOperationException(ERROR_MESSAGE);
+        return this.values.size();
     }
 
     /**
@@ -31,7 +36,7 @@ public class LogicsImpl implements Logics {
      */
     @Override
     public List<Integer> values() {
-        throw new UnsupportedOperationException(ERROR_MESSAGE);
+        return new ArrayList<>(this.values);
     }
 
     /**
@@ -39,7 +44,9 @@ public class LogicsImpl implements Logics {
      */
     @Override
     public List<Boolean> enabledStates() {
-        throw new UnsupportedOperationException(ERROR_MESSAGE);
+        return IntStream.range(0, values.size())
+            .mapToObj(this::isEnabled)
+            .collect(Collectors.toList());
     }
 
     /**
@@ -47,7 +54,12 @@ public class LogicsImpl implements Logics {
      */
     @Override
     public int hit(final int elem) {
-        throw new UnsupportedOperationException(ERROR_MESSAGE);
+        int incremented = this.values.get(elem);
+        if (isEnabled(elem)) {
+            incremented++;
+            this.values.set(elem, incremented);
+        }
+        return incremented;
     }
 
     /**
@@ -55,7 +67,9 @@ public class LogicsImpl implements Logics {
      */
     @Override
     public String result() {
-        throw new UnsupportedOperationException(ERROR_MESSAGE);
+        return this.values.stream()
+            .map(String::valueOf)
+            .collect(Collectors.joining("|", "<", ">"));
     }
 
     /**
@@ -63,6 +77,10 @@ public class LogicsImpl implements Logics {
      */
     @Override
     public boolean toQuit() {
-        throw new UnsupportedOperationException(ERROR_MESSAGE);
+        return this.values.stream().distinct().count() == 1;
+    }
+
+    private boolean isEnabled(final int elem) {
+        return this.values.get(elem) < this.values.size();
     }
 }
